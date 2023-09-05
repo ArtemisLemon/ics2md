@@ -1,7 +1,10 @@
 import icalendar
 
-def YamlHead(title):
-    out = "---\nlayout : post\n title : {}\n---".format(title)
+def YamlHead(data):
+    out = "---\nlayout : post\n"
+    for key,value in data.items():
+        out +=  "{} : {}\n".format(key,value)
+    out+="---\n"
     return out
 
 def write_md(data):
@@ -9,6 +12,8 @@ def write_md(data):
     filename = data['filename'] + ".md"
     with open(filename, 'w') as file:
         file.write(YamlHead(data['yamlhead']))
+        if data["body"]:
+            file.write(data["body"])
 
 
 def load_ics(path):
@@ -45,7 +50,8 @@ def extractfilename(decoded_datetime,title):
 def extractdata(event):
     out = {}
     out["filename"] = extractfilename(event.decoded("dtstart"), event.get("summary"))
-    out["yamlhead"] = event.get("summary")
+    out["yamlhead"] = {"title":event.get("summary")}
+    out["body"] = event.get("description")
     return out
 
 
