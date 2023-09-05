@@ -33,12 +33,18 @@ def load_ics(path):
     file.close()
     return out
 
+def datetime2stringdict(data):
+    out = {}
+    out["year"] = "{}".format(data.year)
+    out["month"]= "{:02d}".format(data.month)
+    out["day"] = "{:02d}".format(data.day)
+    return out
+
+
 def extractfilename(decoded_datetime,title):
     out = ""
-    year = decoded_datetime.year
-    month = "{:02d}".format(decoded_datetime.month)
-    day = "{:02d}".format(decoded_datetime.day)
-    out += "{}-{}-{}".format(year,month,day)
+    xdate = datetime2stringdict(decoded_datetime)
+    out += "{}-{}-{}".format(xdate["year"],xdate["month"],xdate["day"])
     for word in title.split():
         out += "-{}".format(word)
     
@@ -50,7 +56,10 @@ def extractfilename(decoded_datetime,title):
 def extractdata(event):
     out = {}
     out["filename"] = extractfilename(event.decoded("dtstart"), event.get("summary"))
+    
     out["yamlhead"] = {"title":event.get("summary")}
+    out["yamlhead"].update(datetime2stringdict(event.decoded("dtstart")))
+
     out["body"] = event.get("description")
     return out
 
